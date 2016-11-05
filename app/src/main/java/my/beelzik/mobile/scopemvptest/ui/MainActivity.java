@@ -4,7 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 
 import javax.inject.Inject;
@@ -16,24 +20,28 @@ import my.beelzik.mobile.scopemvptest.R;
 import my.beelzik.mobile.scopemvptest.di.sub.MainComponent;
 import my.beelzik.mobile.scopemvptest.di.sub.module.MainModule;
 import my.beelzik.mobile.scopemvptest.model.Repository;
-import my.beelzik.mobile.scopemvptest.mvp.contract.AbsLoadMoreListContract;
+import my.beelzik.mobile.scopemvptest.mvp.contract.AbsSearcherViewContract;
+import my.beelzik.mobile.scopemvptest.mvp.contract.MainRepositoryLoadMoreContract;
 import my.beelzik.mobile.scopemvptest.mvp.util.ComponentDelegate;
 import my.beelzik.mobile.scopemvptest.mvp.util.IHasComponent;
-import my.beelzik.mobile.scopemvptest.mvp.util.LifeCycleSubscriber;
 import my.beelzik.mobile.scopemvptest.mvp.util.ViewStateHelper;
-import my.beelzik.mobile.scopemvptest.mvp.view.BaseActivity;
+import my.beelzik.mobile.scopemvptest.mvp.view.BaseMvpActivity;
 import my.beelzik.mobile.scopemvptest.ui.adapter.RepositoryAdapter;
 import my.beelzik.mobile.scopemvptest.ui.holder.DefaultRecyclerLoadMoreListHolder;
 import my.beelzik.mobile.scopemvptest.ui.holder.ProgressToolbarHolder;
+import my.beelzik.mobile.scopemvptest.ui.holder.SearcherHolder;
 
 /**
  * Created by Andrey on 17.10.2016.
  */
 
-public class MainActivity extends BaseActivity implements IHasComponent<MainComponent> {
+public class MainActivity extends BaseMvpActivity implements IHasComponent<MainComponent> {
 
     private static final String TAG = "MainActivity";
+
     DefaultRecyclerLoadMoreListHolder<Repository> mLoadMoreListViewHolder;
+
+    SearcherHolder mSearcherHolder;
 
     @BindView(R.id.progress_toolbar)
     Toolbar mProgressToolbarView;
@@ -48,7 +56,10 @@ public class MainActivity extends BaseActivity implements IHasComponent<MainComp
     ViewStateHelper mStateHelper;
 
     @Inject
-    AbsLoadMoreListContract.Presenter<Repository> mLoadMoreListPresenter;
+    MainRepositoryLoadMoreContract.Presenter mLoadMoreListPresenter;
+
+    @Inject
+    AbsSearcherViewContract.Presenter mSearchPresenter;
 
     private ComponentDelegate<MainComponent> mComponentDelegate;
 
@@ -75,7 +86,7 @@ public class MainActivity extends BaseActivity implements IHasComponent<MainComp
         mComponentDelegate.getComponent().inject(this);
 
         mAdapter = new RepositoryAdapter(this);
-        mLoadMoreListViewHolder = new DefaultRecyclerLoadMoreListHolder<Repository>(mSwipeRefreshRecycler, mAdapter) {
+        mLoadMoreListViewHolder = new DefaultRecyclerLoadMoreListHolder<Repository>(mSwipeRefreshRecycler, mAdapter, mLoadMoreListPresenter) {
 
             @Override
             public void showLoadMoreProgress(boolean progress) {
@@ -97,11 +108,8 @@ public class MainActivity extends BaseActivity implements IHasComponent<MainComp
 
         };
         mLoadMoreListViewHolder.onRestoreInstanceState(savedInstanceState);
-        mLoadMoreListViewHolder.setPresenter(mLoadMoreListPresenter);
 
-        mLoadMoreListPresenter.attachView(mLoadMoreListViewHolder);
-        bindToLifeCycle((LifeCycleSubscriber) mLoadMoreListPresenter);
-
+        bindPresenter(mLoadMoreListPresenter, mLoadMoreListViewHolder);
 
     }
 
@@ -112,6 +120,23 @@ public class MainActivity extends BaseActivity implements IHasComponent<MainComp
         mStateHelper.onSaveInstanceState(outState);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        /*
+        TODO view создается денамически, не совсем понятно как это забиндить через делегат.
+        Можно конечно mSearcherHolder создать в onCreate, а searchView передать не в конструкторе а в сетере но хз хз
+        */
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.search));
+        mSearcherHolder = new SearcherHolder(this, searchView, mSearchPresenter);
+
+        bindPresenter(mSearchPresenter, mSearcherHolder);
+
+        return super.onCreateOptionsMenu(menu);
+
+    }
 
     @Override
     public MainComponent createComponent() {
@@ -121,9 +146,7 @@ public class MainActivity extends BaseActivity implements IHasComponent<MainComp
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mLoadMoreListPresenter.detachView();
-
-
+        Log.d(TAG, "onDestroy: ");
     }
 
     @Override

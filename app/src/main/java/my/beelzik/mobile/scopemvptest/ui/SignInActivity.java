@@ -23,13 +23,12 @@ import my.beelzik.mobile.scopemvptest.di.sub.module.SignInModule;
 import my.beelzik.mobile.scopemvptest.mvp.contract.SignInContract;
 import my.beelzik.mobile.scopemvptest.mvp.util.ComponentDelegate;
 import my.beelzik.mobile.scopemvptest.mvp.util.IHasComponent;
-import my.beelzik.mobile.scopemvptest.mvp.util.LifeCycleSubscriber;
 import my.beelzik.mobile.scopemvptest.mvp.util.ViewStateHelper;
-import my.beelzik.mobile.scopemvptest.mvp.view.BaseActivity;
+import my.beelzik.mobile.scopemvptest.mvp.view.BaseMvpActivity;
 import my.beelzik.mobile.scopemvptest.ui.holder.ProgressToolbarHolder;
 import my.beelzik.mobile.scopemvptest.utils.ViewUtils;
 
-public class SignInActivity extends BaseActivity implements SignInContract.View, IHasComponent<SignInComponent> {
+public class SignInActivity extends BaseMvpActivity implements SignInContract.View, IHasComponent<SignInComponent> {
 
     private static final String KEY_STATE_FORM_ENABLED = "KEY_STATE_FORM_ENABLED";
 
@@ -86,7 +85,7 @@ public class SignInActivity extends BaseActivity implements SignInContract.View,
                 getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
             }
         }
-
+        mErrorDialog = new AlertDialog.Builder(this).setTitle("Error").create();
 
         setSupportActionBar(mToolbarHolder.toolbar);
 
@@ -94,11 +93,8 @@ public class SignInActivity extends BaseActivity implements SignInContract.View,
 
         mComponentDelegate.getComponent().inject(this);
 
-        bindToLifeCycle((LifeCycleSubscriber) mSignInPresenter);
+        bindPresenter(mSignInPresenter, this);
 
-        mErrorDialog = new AlertDialog.Builder(this).setTitle("Error").create();
-
-        mSignInPresenter.attachView(this);
 
         mSignIn.setOnClickListener(v -> attemptLogin());
 

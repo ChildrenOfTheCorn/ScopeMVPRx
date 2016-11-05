@@ -25,8 +25,9 @@ public class ApiServiceImpl implements ApiService {
     }
 
     @Override
-    public Observable<SearchResult> search(String query) {
-        return RxUtils.wrapAsyncRetroCall(mGithubApi.search(query));
+    public Observable<SearchResult> search(String query, String type, int page, int pageSize) {
+
+        return RxUtils.wrapAsyncRetroCall(mGithubApi.search(query, type, page, pageSize));
     }
 
     @Override

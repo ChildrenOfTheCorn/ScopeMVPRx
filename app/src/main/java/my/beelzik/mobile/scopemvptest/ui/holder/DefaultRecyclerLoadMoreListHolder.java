@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import my.beelzik.mobile.scopemvptest.R;
+import my.beelzik.mobile.scopemvptest.mvp.contract.AbsLoadMoreListContract;
 import my.beelzik.mobile.scopemvptest.ui.adapter.BaseListRecyclerAdapter;
 import my.beelzik.mobile.scopemvptest.ui.view.ItemDecorationWithDivider;
 
@@ -15,8 +16,8 @@ import my.beelzik.mobile.scopemvptest.ui.view.ItemDecorationWithDivider;
 public class DefaultRecyclerLoadMoreListHolder<T> extends AbsRecyclerLoadMoreListHolder<T> {
 
 
-    public DefaultRecyclerLoadMoreListHolder(View view, BaseListRecyclerAdapter<T> adapter) {
-        super(view, adapter);
+    public DefaultRecyclerLoadMoreListHolder(View view, BaseListRecyclerAdapter<T> adapter, AbsLoadMoreListContract.Presenter<T> presenter) {
+        super(view, adapter, presenter);
 
         mRecyclerView.addItemDecoration(new ItemDecorationWithDivider() {
             @Override

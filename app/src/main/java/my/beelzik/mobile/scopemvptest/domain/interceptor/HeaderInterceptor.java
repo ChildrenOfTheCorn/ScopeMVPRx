@@ -18,6 +18,9 @@ import okhttp3.Response;
 public class HeaderInterceptor implements Interceptor {
 
     private static final String X_OAUTH_SCOPES = "X-OAuth-Scopes";
+    private static final String X_ACCEPTED_OAUTH_SCOPES = "X-Accepted-OAuth-Scopes";
+
+
     private static final String OAUTH_HEADER = "Authorization";
 
     @Inject
@@ -33,6 +36,7 @@ public class HeaderInterceptor implements Interceptor {
         Request.Builder builder = chain.request().newBuilder();
         if (mSessionPreference.isAuthorized()) {
             builder.addHeader(X_OAUTH_SCOPES, "repo, user")
+                    .addHeader(X_ACCEPTED_OAUTH_SCOPES, "repo, user")
                     .addHeader(OAUTH_HEADER, mSessionPreference.getSessionToken());
         }
 

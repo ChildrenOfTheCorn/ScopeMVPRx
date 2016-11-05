@@ -15,6 +15,9 @@ import my.beelzik.mobile.scopemvptest.mvp.contract.SignInContract;
 
 public class SignInPresenter extends BasePresenter<SignInContract.View> implements SignInContract.Presenter {
 
+    boolean mSignedIn = false;
+    Throwable mThrowable;
+
     @Override
     public void onSignInClick(String email, String password) {
         String emailError = null;
@@ -43,22 +46,49 @@ public class SignInPresenter extends BasePresenter<SignInContract.View> implemen
 
 
         apiService.signIn(token).subscribe(user -> {
-                    view.showProgress(false);
-                    view.enableForm(true);
+                    mSignedIn = true;
                     sessionPreference.setSessionToken(token);
-                    view.signIn();
-
+                    signIn();
                 },
                 throwable -> {
-                    view.showProgress(false);
-                    view.enableForm(true);
-                    view.showError(throwable.getMessage());
+                    mThrowable = throwable;
+                    signInFailed();
                 });
+    }
+
+    private void signInFailed() {
+        if (isViewAttached()) {
+            view.showProgress(false);
+            view.enableForm(true);
+            view.showError(mThrowable.getMessage());
+            mThrowable = null;
+        }
+    }
+
+    private void signIn() {
+        if (isViewAttached()) {
+            view.showProgress(false);
+            view.enableForm(true);
+            view.signIn();
+        }
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sessionPreference.logout();
+    }
+
+    @Override
+    public void attachView(SignInContract.View view) {
+        super.attachView(view);
+
+        if (mSignedIn) {
+            signIn();
+        }
+
+        if (mThrowable != null) {
+            signInFailed();
+        }
     }
 }

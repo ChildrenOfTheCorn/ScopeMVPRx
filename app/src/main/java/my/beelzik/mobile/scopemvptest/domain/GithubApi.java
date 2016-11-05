@@ -23,7 +23,7 @@ public interface GithubApi {
     Call<User> signIn(@Header("Authorization") String token);
 
     @GET("/search/repositories?sort=stars&order=desc")
-    Call<SearchResult> search(@Query("q") String query);
+    Call<SearchResult> search(@Query("q") String query, @Query("type") String type, @Query("page") int page, @Query("per_page") int pageSize);
 
     @GET("/users/{login}/repos")
     Call<List<Repository>> getUserRepos(@Path("login") String login, @Query("page") int page, @Query("per_page") int pageSize);

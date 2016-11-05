@@ -15,7 +15,7 @@ public interface ApiService {
 
     Observable<User> signIn(String token);
 
-    Observable<SearchResult> search(String query);
+    Observable<SearchResult> search(String query, String type, int page, int pageSize);
 
     Observable<List<Repository>> getUserRepos(String login, int page, int pageSize);
 }

@@ -7,7 +7,7 @@ public interface AbsSearcherViewContract {
 
     interface View {
 
-        void setSearchQueryText(CharSequence query);
+        void showCurrentQueryText(CharSequence query);
 
         void openSearchInput();
 
@@ -17,17 +17,11 @@ public interface AbsSearcherViewContract {
     }
 
 
-    interface Presenter {
-
-        String getQuery();
+    interface Presenter extends BaseContract.MvpPresenter<View> {
 
         void search(CharSequence query);
 
         void cancel();
-
-        void attachView(View view);
-
-        void setOnSearchListener(OnSearchListener onSearchListener);
 
     }
 

@@ -2,7 +2,6 @@ package my.beelzik.mobile.scopemvptest.ui.holder;
 
 import android.content.Context;
 import android.support.v7.widget.SearchView;
-import android.text.TextUtils;
 
 import my.beelzik.mobile.scopemvptest.mvp.contract.AbsSearcherViewContract;
 
@@ -16,11 +15,11 @@ public class SearcherHolder implements AbsSearcherViewContract.View {
     Context mContext;
     SearchView mSearchView;
     AbsSearcherViewContract.Presenter mPresenter;
-    boolean mSelfClose = false;
 
-    public SearcherHolder(Context context, SearchView searchView) {
+    public SearcherHolder(Context context, SearchView searchView, AbsSearcherViewContract.Presenter presenter) {
         mContext = context;
         mSearchView = searchView;
+        mPresenter = presenter;
 
 
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -38,31 +37,22 @@ public class SearcherHolder implements AbsSearcherViewContract.View {
 
 
         mSearchView.setOnCloseListener(() -> {
-            if (!mSelfClose) {
-                mPresenter.cancel();
-            } else {
-                mSelfClose = false;
-            }
+            mPresenter.cancel();
             return false;
         });
     }
 
 
     @Override
-    public void setSearchQueryText(CharSequence query) {
+    public void showCurrentQueryText(CharSequence query) {
 
         mSearchView.post(() -> {
             mSearchView.setQuery(query, false);
             mSearchView.clearFocus();
         });
 
-        if (!TextUtils.isEmpty(query)) {
-            mSearchView.setIconified(false);
-            mSearchView.clearFocus();
-        } else {
-            mSelfClose = true;
-            mSearchView.setIconified(true);
-        }
+        mSearchView.setIconified(false);
+        mSearchView.clearFocus();
     }
 
     @Override
@@ -76,7 +66,4 @@ public class SearcherHolder implements AbsSearcherViewContract.View {
         mSearchView.clearFocus();
     }
 
-    public void setPresenter(AbsSearcherViewContract.Presenter presenter) {
-        mPresenter = presenter;
-    }
 }

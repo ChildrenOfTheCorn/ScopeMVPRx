@@ -70,10 +70,11 @@ public abstract class AbsRecyclerLoadMoreListHolder<T> extends BaseHolder implem
         }
     };
 
-    public AbsRecyclerLoadMoreListHolder(View view, BaseListRecyclerAdapter<T> adapter) {
+    public AbsRecyclerLoadMoreListHolder(View view, BaseListRecyclerAdapter<T> adapter, AbsLoadMoreListContract.Presenter<T> presenter) {
         super(view);
 
         mContext = view.getContext();
+        mPresenter = presenter;
 
         mStateHelper = new ViewStateHelper(TAG + "_" + view.getId());
         mStateHelper.addViews(mSwipeRefreshLayout, mRecyclerView, mEmptyView, mProgressBar);
@@ -136,10 +137,6 @@ public abstract class AbsRecyclerLoadMoreListHolder<T> extends BaseHolder implem
         if (mEmptyView != null) {
             mEmptyView.setVisibility(show ? View.VISIBLE : View.GONE);
         }
-    }
-
-    public void setPresenter(AbsLoadMoreListContract.Presenter<T> presenter) {
-        mPresenter = presenter;
     }
 
     @Override
