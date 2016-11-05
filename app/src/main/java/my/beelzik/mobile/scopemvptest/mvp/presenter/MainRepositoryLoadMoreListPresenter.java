@@ -49,7 +49,7 @@ public class MainRepositoryLoadMoreListPresenter extends AbsLoadMoreListPresente
     @Override
     protected void onLoadingFailed(Throwable failed) {
         super.onLoadingFailed(failed);
-        view.showLoadError(failed.getMessage());
+        send(view -> view.showLoadError(failed.getMessage()));
     }
 
 
@@ -60,11 +60,11 @@ public class MainRepositoryLoadMoreListPresenter extends AbsLoadMoreListPresente
     }
 
     private void reload() {
-        if (isViewAttached()) {
-            view.fetchItems(null);
-        }
+        sendFinal(view -> view.fetchItems(null));
+        cancelProgress();
         mDataList = null;
         mAllLoaded = false;
+        mRefreshing = false;
 
         if (mLoading) {
             cancelLoading();

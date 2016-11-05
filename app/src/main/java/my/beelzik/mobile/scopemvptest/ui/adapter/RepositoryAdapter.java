@@ -48,11 +48,10 @@ public class RepositoryAdapter extends BaseListRecyclerAdapter<Repository> {
             name.setText("Position: " + position + " name: " + item.getName());
 
             if (item.getOwner() != null) {
-                Glide.with(context)
+                Glide.with(context.getApplicationContext())
                         .load(item.getOwner().getAvatarUrl())
-                        .centerCrop()
                         .placeholder(R.mipmap.ic_launcher)
-                        .override(200, 200)
+                        .fitCenter()
                         .crossFade()
                         .into(image);
             } else {

@@ -15,15 +15,12 @@ import my.beelzik.mobile.scopemvptest.mvp.contract.SignInContract;
 
 public class SignInPresenter extends BasePresenter<SignInContract.View> implements SignInContract.Presenter {
 
-    boolean mSignedIn = false;
-    Throwable mThrowable;
-
     @Override
     public void onSignInClick(String email, String password) {
         String emailError = null;
         String passwordError = null;
 
-        view.showSignInFormError(null, null);
+        send(view -> view.showSignInFormError(null, null));
 
         if (TextUtils.isEmpty(email)) {
             emailError = getString(R.string.error_field_required);
@@ -34,11 +31,13 @@ public class SignInPresenter extends BasePresenter<SignInContract.View> implemen
         }
 
         if (emailError != null || passwordError != null) {
-            view.showSignInFormError(emailError, passwordError);
+            final String finalEmailError = emailError;
+            final String finalPasswordError = passwordError;
+            send(view -> view.showSignInFormError(finalEmailError, finalPasswordError));
             return;
         }
-        view.showProgress(true);
-        view.enableForm(false);
+        send(view -> view.showProgress(true));
+        send(view -> view.enableForm(false));
 
         String credentials = String.format("%s:%s", email, password);
 
@@ -46,31 +45,21 @@ public class SignInPresenter extends BasePresenter<SignInContract.View> implemen
 
 
         apiService.signIn(token).subscribe(user -> {
-                    mSignedIn = true;
                     sessionPreference.setSessionToken(token);
-                    signIn();
+                    send(view -> view.showProgress(false));
+                    send(view -> view.enableForm(true));
+                    send(SignInContract.View::signIn);
                 },
                 throwable -> {
-                    mThrowable = throwable;
-                    signInFailed();
+                    send(view -> view.showProgress(false));
+                    send(view -> view.enableForm(true));
+                    sendSingle(view -> view.showError(throwable.getMessage()));
                 });
     }
 
-    private void signInFailed() {
-        if (isViewAttached()) {
-            view.showProgress(false);
-            view.enableForm(true);
-            view.showError(mThrowable.getMessage());
-            mThrowable = null;
-        }
-    }
-
-    private void signIn() {
-        if (isViewAttached()) {
-            view.showProgress(false);
-            view.enableForm(true);
-            view.signIn();
-        }
+    @Override
+    public void onErrorDialogDismiss() {
+        // cleanCommands();
     }
 
     @Override
@@ -79,16 +68,4 @@ public class SignInPresenter extends BasePresenter<SignInContract.View> implemen
         sessionPreference.logout();
     }
 
-    @Override
-    public void attachView(SignInContract.View view) {
-        super.attachView(view);
-
-        if (mSignedIn) {
-            signIn();
-        }
-
-        if (mThrowable != null) {
-            signInFailed();
-        }
-    }
 }

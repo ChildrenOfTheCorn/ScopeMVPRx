@@ -27,7 +27,6 @@ public abstract class AbsLoadMoreListPresenter<T, F> extends BasePresenter<AbsLo
     private int mLimit = 10;
 
     protected List<T> mDataList;
-    protected F mFailedReason;
 
     protected boolean mRefreshing = false;
     protected boolean mLoading = false;
@@ -40,22 +39,6 @@ public abstract class AbsLoadMoreListPresenter<T, F> extends BasePresenter<AbsLo
         mLimit = limit;
         mDefaultOffset = defaultOffset;
         mOffset = defaultOffset;
-    }
-
-    @Override
-    public void attachView(AbsLoadMoreListContract.View<T> view) {
-        super.attachView(view);
-
-        if (mRefreshing || mLoading) {
-            showInProgress();
-        } else {
-            cancelProgress();
-            updateContent();
-        }
-
-        if (mFailedReason != null) {
-            showFailed();
-        }
     }
 
     @Override
@@ -83,6 +66,7 @@ public abstract class AbsLoadMoreListPresenter<T, F> extends BasePresenter<AbsLo
 
     protected void onLoadingSuccess(List<T> list) {
 
+        cleanCommands();
         if (CollectionUtils.isEmpty(list) || mLimit > list.size()) {
             mAllLoaded = true;
         } else {
@@ -104,55 +88,43 @@ public abstract class AbsLoadMoreListPresenter<T, F> extends BasePresenter<AbsLo
     }
 
     protected void onLoadingFailed(F failed) {
-        mFailedReason = failed;
 
         if (mRefreshing) {
             mRefreshing = false;
         }
         mLoading = false;
 
-        showFailed();
-    }
-
-    private void showFailed() {
+        cleanCommands();
         cancelProgress();
         updateContent();
-        mFailedReason = null;
     }
 
-    private void updateContent() {
-        if (isViewAttached()) {
-            view.fetchItems(mDataList);
-            updateContentView();
-        }
+    protected void updateContent() {
+        send(view -> view.fetchItems(mDataList));
+        updateContentView();
     }
 
-    private void cancelProgress() {
-        if (isViewAttached()) {
-            view.showRefreshing(false);
-            view.showLoadMoreProgress(false);
-            view.showContentProgress(false);
-        }
-
+    protected void cancelProgress() {
+        send(view -> view.showRefreshing(false));
+        send(view -> view.showLoadMoreProgress(false));
+        send(view -> view.showContentProgress(false));
     }
 
-    private void showInProgress() {
-        if (isViewAttached()) {
-            view.showEmpty(false);
-            if (mRefreshing) {
-                view.showRefreshing(true);
-            } else if (CollectionUtils.isEmpty(mDataList)) {
-                view.showContentProgress(true);
-            } else {
-                view.showLoadMoreProgress(true);
-            }
+    protected void showInProgress() {
+        send(view -> view.showEmpty(false));
+        if (mRefreshing) {
+            send(view -> view.showRefreshing(true));
+        } else if (CollectionUtils.isEmpty(mDataList)) {
+            send(view -> view.showContentProgress(true));
+        } else {
+            send(view -> view.showLoadMoreProgress(true));
         }
     }
 
     private void updateContentView() {
         boolean empty = CollectionUtils.isEmpty(mDataList);
-        view.showEmpty(empty);
-        view.showContentList(!empty);
+        send(view -> view.showEmpty(empty));
+        send(view -> view.showContentList(!empty));
     }
 
 
@@ -169,6 +141,7 @@ public abstract class AbsLoadMoreListPresenter<T, F> extends BasePresenter<AbsLo
 
     @Override
     public void refresh() {
+        cleanCommands();
         if (!mRefreshing) {
             mRefreshing = true;
             mAllLoaded = false;

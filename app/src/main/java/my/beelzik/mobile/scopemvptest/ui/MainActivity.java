@@ -24,7 +24,6 @@ import my.beelzik.mobile.scopemvptest.mvp.contract.AbsSearcherViewContract;
 import my.beelzik.mobile.scopemvptest.mvp.contract.MainRepositoryLoadMoreContract;
 import my.beelzik.mobile.scopemvptest.mvp.util.ComponentDelegate;
 import my.beelzik.mobile.scopemvptest.mvp.util.IHasComponent;
-import my.beelzik.mobile.scopemvptest.mvp.util.ViewStateHelper;
 import my.beelzik.mobile.scopemvptest.mvp.view.BaseMvpActivity;
 import my.beelzik.mobile.scopemvptest.ui.adapter.RepositoryAdapter;
 import my.beelzik.mobile.scopemvptest.ui.holder.DefaultRecyclerLoadMoreListHolder;
@@ -53,7 +52,7 @@ public class MainActivity extends BaseMvpActivity implements IHasComponent<MainC
 
     ProgressToolbarHolder mToolbarHolder;
 
-    ViewStateHelper mStateHelper;
+    // ViewStateHelper mStateHelper;
 
     @Inject
     MainRepositoryLoadMoreContract.Presenter mLoadMoreListPresenter;
@@ -76,9 +75,9 @@ public class MainActivity extends BaseMvpActivity implements IHasComponent<MainC
         ButterKnife.bind(this);
         mToolbarHolder = new ProgressToolbarHolder(mProgressToolbarView);
 
-        mStateHelper = new ViewStateHelper(TAG);
+       /* mStateHelper = new ViewStateHelper(TAG);
         mStateHelper.addViews(mToolbarHolder.progressBar);
-        mStateHelper.onRestoreInstanceState(savedInstanceState);
+        mStateHelper.onRestoreInstanceState(savedInstanceState);*/
 
         setSupportActionBar(mToolbarHolder.toolbar);
 
@@ -107,19 +106,19 @@ public class MainActivity extends BaseMvpActivity implements IHasComponent<MainC
             }
 
         };
-        mLoadMoreListViewHolder.onRestoreInstanceState(savedInstanceState);
+      /*  mLoadMoreListViewHolder.onRestoreInstanceState(savedInstanceState);*/
 
         bindPresenter(mLoadMoreListPresenter, mLoadMoreListViewHolder);
 
     }
 
-    @Override
+    /*@Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mLoadMoreListViewHolder.onSaveInstanceState(outState);
         mStateHelper.onSaveInstanceState(outState);
     }
-
+*/
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 

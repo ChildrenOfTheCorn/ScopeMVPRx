@@ -8,13 +8,16 @@ import android.support.annotation.StringRes;
 import my.beelzik.mobile.scopemvptest.domain.ApiService;
 import my.beelzik.mobile.scopemvptest.mvp.contract.BaseContract;
 import my.beelzik.mobile.scopemvptest.mvp.util.LifeCycleSubscriber;
+import my.beelzik.mobile.scopemvptest.mvp.util.ViewCommand;
+import my.beelzik.mobile.scopemvptest.mvp.util.ViewCommandHelper;
+import my.beelzik.mobile.scopemvptest.mvp.util.ViewCommandSingle;
 import my.beelzik.mobile.scopemvptest.preference.SessionPreference;
 
 /**
  * Created by Andrey on 16.10.2016.
  */
 
-public class BasePresenter<T> implements BaseContract.MvpPresenter<T>, LifeCycleSubscriber {
+public class BasePresenter<V> implements BaseContract.MvpPresenter<V>, LifeCycleSubscriber {
 
     private BasePresenterInjectionHelper mInjectionHelper;
 
@@ -22,7 +25,9 @@ public class BasePresenter<T> implements BaseContract.MvpPresenter<T>, LifeCycle
     protected ApiService apiService;
     protected SessionPreference sessionPreference;
 
-    protected T view;
+    private V view;
+
+    ViewCommandHelper<V> mViewCommandHelper;
 
     public BasePresenter() {
         mInjectionHelper = new BasePresenterInjectionHelper();
@@ -30,16 +35,35 @@ public class BasePresenter<T> implements BaseContract.MvpPresenter<T>, LifeCycle
         context = mInjectionHelper.context;
         apiService = mInjectionHelper.apiService;
         sessionPreference = mInjectionHelper.sessionPreference;
+
+        mViewCommandHelper = new ViewCommandHelper<>();
     }
 
+    protected void cleanCommands() {
+        mViewCommandHelper.cleanCommands();
+    }
+
+    protected void send(ViewCommand<V> command) {
+        mViewCommandHelper.sendCommand(command);
+    }
+
+    protected void sendSingle(ViewCommandSingle<V> command) {
+        mViewCommandHelper.sendCommand(command);
+    }
+
+    protected void sendFinal(ViewCommand<V> command) {
+        mViewCommandHelper.cleanCommands();
+        mViewCommandHelper.sendCommand(command);
+    }
 
     protected String getString(@StringRes int stringRes) {
         return context.getString(stringRes);
     }
 
     @Override
-    public void attachView(T view) {
+    public void attachView(V view) {
         this.view = view;
+        mViewCommandHelper.subscribe(view);
     }
 
     @Override
@@ -50,6 +74,7 @@ public class BasePresenter<T> implements BaseContract.MvpPresenter<T>, LifeCycle
     @Override
     public void detachView() {
         view = null;
+        mViewCommandHelper.unsubscribe();
     }
 
     @Override

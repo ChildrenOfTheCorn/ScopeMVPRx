@@ -26,5 +26,6 @@ public interface SignInContract {
 
         void onSignInClick(String email, String password);
 
+        void onErrorDialogDismiss();
     }
 }

@@ -23,7 +23,6 @@ import my.beelzik.mobile.scopemvptest.di.sub.module.SignInModule;
 import my.beelzik.mobile.scopemvptest.mvp.contract.SignInContract;
 import my.beelzik.mobile.scopemvptest.mvp.util.ComponentDelegate;
 import my.beelzik.mobile.scopemvptest.mvp.util.IHasComponent;
-import my.beelzik.mobile.scopemvptest.mvp.util.ViewStateHelper;
 import my.beelzik.mobile.scopemvptest.mvp.view.BaseMvpActivity;
 import my.beelzik.mobile.scopemvptest.ui.holder.ProgressToolbarHolder;
 import my.beelzik.mobile.scopemvptest.utils.ViewUtils;
@@ -57,7 +56,7 @@ public class SignInActivity extends BaseMvpActivity implements SignInContract.Vi
 
     ProgressToolbarHolder mToolbarHolder;
 
-    ViewStateHelper mStateHelper;
+    // ViewStateHelper mStateHelper;
 
     @Inject
     SignInContract.Presenter mSignInPresenter;
@@ -75,17 +74,18 @@ public class SignInActivity extends BaseMvpActivity implements SignInContract.Vi
 
         ButterKnife.bind(this);
         mToolbarHolder = new ProgressToolbarHolder(mProgressToolbarView);
-        mStateHelper = new ViewStateHelper(this);
+      /*  mStateHelper = new ViewStateHelper(this);
         mStateHelper.addViews(mInputLayoutEmail, mInputLayoutPassword, mInputEmail, mInputPassword, mToolbarHolder.progressBar, mSignIn);
-        mStateHelper.onRestoreInstanceState(savedInstanceState);
+        mStateHelper.onRestoreInstanceState(savedInstanceState);*/
 
-        if (savedInstanceState != null) {
+       /* if (savedInstanceState != null) {
             mFormEnabled = savedInstanceState.getBoolean(KEY_STATE_FORM_ENABLED);
             if (!mFormEnabled) {
                 getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
             }
-        }
+        }*/
         mErrorDialog = new AlertDialog.Builder(this).setTitle("Error").create();
+        mErrorDialog.setOnDismissListener(dialog -> mSignInPresenter.onErrorDialogDismiss());
 
         setSupportActionBar(mToolbarHolder.toolbar);
 
@@ -111,13 +111,13 @@ public class SignInActivity extends BaseMvpActivity implements SignInContract.Vi
         mSignInPresenter.onSignInClick(mInputEmail.getText().toString(), mInputPassword.getText().toString());
     }
 
-    @Override
+   /* @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mStateHelper.onSaveInstanceState(outState);
 
         outState.putBoolean(KEY_STATE_FORM_ENABLED, mFormEnabled);
-    }
+    }*/
 
     @Override
     protected void onDestroy() {

@@ -1,7 +1,6 @@
 package my.beelzik.mobile.scopemvptest.ui.holder;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -14,7 +13,6 @@ import java.util.List;
 import butterknife.BindView;
 import my.beelzik.mobile.scopemvptest.R;
 import my.beelzik.mobile.scopemvptest.mvp.contract.AbsLoadMoreListContract;
-import my.beelzik.mobile.scopemvptest.mvp.util.ViewStateHelper;
 import my.beelzik.mobile.scopemvptest.ui.adapter.BaseListRecyclerAdapter;
 import my.beelzik.mobile.scopemvptest.ui.adapter.ProgressWrapperRecyclerAdapter;
 
@@ -27,8 +25,8 @@ public abstract class AbsRecyclerLoadMoreListHolder<T> extends BaseHolder implem
 
     private static final String TAG = "AbsRecyclerLoadMoreList";
 
-    private static final String KEY_STATE_IN_PROGRESS = "STATE_IN_PROGRESS";
-    private static final String KEY_STATE_REFRESHING = "KEY_STATE_REFRESHING";
+/*    private static final String KEY_STATE_IN_PROGRESS = "STATE_IN_PROGRESS";
+    private static final String KEY_STATE_REFRESHING = "KEY_STATE_REFRESHING";*/
 
     @BindView(R.id.swipe_refresh_layout)
     protected SwipeRefreshLayout mSwipeRefreshLayout;
@@ -50,7 +48,7 @@ public abstract class AbsRecyclerLoadMoreListHolder<T> extends BaseHolder implem
 
     protected Context mContext;
 
-    private ViewStateHelper mStateHelper;
+    //private ViewStateHelper mStateHelper;
 
     RecyclerView.OnScrollListener mLoadMoreScrollListener = new RecyclerView.OnScrollListener() {
         @Override
@@ -76,8 +74,8 @@ public abstract class AbsRecyclerLoadMoreListHolder<T> extends BaseHolder implem
         mContext = view.getContext();
         mPresenter = presenter;
 
-        mStateHelper = new ViewStateHelper(TAG + "_" + view.getId());
-        mStateHelper.addViews(mSwipeRefreshLayout, mRecyclerView, mEmptyView, mProgressBar);
+/*        mStateHelper = new ViewStateHelper(TAG + "_" + view.getId());
+        mStateHelper.addViews(mSwipeRefreshLayout, mRecyclerView, mEmptyView, mProgressBar);*/
 
         mRootAdapter = adapter;
         mWrapperAdapter = new ProgressWrapperRecyclerAdapter(mContext, adapter, getProgressLayoutRes());
@@ -139,9 +137,9 @@ public abstract class AbsRecyclerLoadMoreListHolder<T> extends BaseHolder implem
         }
     }
 
-    @Override
+  /*  @Override
     public void onSaveInstanceState(Bundle outState) {
-        mStateHelper.onSaveInstanceState(outState);
+      *//*  mStateHelper.onSaveInstanceState(outState);*//*
 
         outState.putBoolean(KEY_STATE_IN_PROGRESS, mWrapperAdapter.isInProgress());
         outState.putBoolean(KEY_STATE_REFRESHING, mSwipeRefreshLayout.isRefreshing());
@@ -156,5 +154,5 @@ public abstract class AbsRecyclerLoadMoreListHolder<T> extends BaseHolder implem
         }
 
 
-    }
+    }*/
 }
