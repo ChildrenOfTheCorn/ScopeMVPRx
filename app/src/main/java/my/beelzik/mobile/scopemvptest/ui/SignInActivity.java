@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
@@ -122,13 +123,10 @@ public class SignInActivity extends BaseMvpActivity implements SignInContract.Vi
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mSignInPresenter.detachView();
-    }
 
-    @Override
-    public void finish() {
-        mComponentDelegate.removeComponent();
-        super.finish();
+        if (isFinishing()) {
+            mComponentDelegate.removeComponent();
+        }
     }
 
     @Override
@@ -139,9 +137,12 @@ public class SignInActivity extends BaseMvpActivity implements SignInContract.Vi
     }
 
 
+
     @Override
     public void enableForm(boolean enable) {
         mFormEnabled = enable;
+
+        Log.d(TAG, "enableForm: " + enable);
         ViewUtils.enableHierarchy(mLoginForm, enable);
         if (!enable) {
             getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);

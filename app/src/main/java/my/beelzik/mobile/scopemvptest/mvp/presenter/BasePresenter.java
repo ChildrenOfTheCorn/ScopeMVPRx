@@ -2,8 +2,10 @@ package my.beelzik.mobile.scopemvptest.mvp.presenter;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
+import android.util.Log;
 
 import my.beelzik.mobile.scopemvptest.domain.ApiService;
 import my.beelzik.mobile.scopemvptest.mvp.contract.BaseContract;
@@ -12,6 +14,8 @@ import my.beelzik.mobile.scopemvptest.mvp.util.ViewCommand;
 import my.beelzik.mobile.scopemvptest.mvp.util.ViewCommandHelper;
 import my.beelzik.mobile.scopemvptest.mvp.util.ViewCommandSingle;
 import my.beelzik.mobile.scopemvptest.preference.SessionPreference;
+
+import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
 
 /**
  * Created by Andrey on 16.10.2016.
@@ -25,7 +29,7 @@ public class BasePresenter<V> implements BaseContract.MvpPresenter<V>, LifeCycle
     protected ApiService apiService;
     protected SessionPreference sessionPreference;
 
-    private V view;
+    //private V view;
 
     ViewCommandHelper<V> mViewCommandHelper;
 
@@ -43,14 +47,17 @@ public class BasePresenter<V> implements BaseContract.MvpPresenter<V>, LifeCycle
         mViewCommandHelper.cleanCommands();
     }
 
+    @MainThread
     protected void send(ViewCommand<V> command) {
         mViewCommandHelper.sendCommand(command);
     }
 
+    @MainThread
     protected void sendSingle(ViewCommandSingle<V> command) {
         mViewCommandHelper.sendCommand(command);
     }
 
+    @MainThread
     protected void sendFinal(ViewCommand<V> command) {
         mViewCommandHelper.cleanCommands();
         mViewCommandHelper.sendCommand(command);
@@ -62,19 +69,21 @@ public class BasePresenter<V> implements BaseContract.MvpPresenter<V>, LifeCycle
 
     @Override
     public void attachView(V view) {
-        this.view = view;
+        // this.view = view;
         mViewCommandHelper.subscribe(view);
     }
 
     @Override
-    public boolean isViewAttached() {
-        return view != null;
+    public boolean isViewsAttached() {
+        return mViewCommandHelper.hasSubscribers();
     }
 
     @Override
-    public void detachView() {
-        view = null;
-        mViewCommandHelper.unsubscribe();
+    public void detachView(V view) {
+        //this.view = null;
+
+        Log.d(TAG, "detachView: view.name: " + view.getClass().getSimpleName());
+        mViewCommandHelper.unsubscribe(view);
     }
 
     @Override

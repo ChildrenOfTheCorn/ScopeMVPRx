@@ -1,5 +1,9 @@
 package my.beelzik.mobile.scopemvptest.mvp.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import rx.Subscription;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -10,25 +14,37 @@ public class ViewCommandHelper<V> {
 
     private static final int MAX_COMMAND_IN_ROW = 16;
 
-    private CommandSubject<ViewCommand<V>> mCommandSubject;
+    private CommandSubjectSync<ViewCommand<V>> mCommandSubject;
     private CompositeSubscription mSubscription;
+
+    Map<V, Subscription> mSubscriptionMap;
 
     public ViewCommandHelper() {
         createSubject();
+        mSubscriptionMap = new HashMap<>();
     }
 
     private void createSubject() {
-        mCommandSubject = CommandSubject.createWithSize(MAX_COMMAND_IN_ROW);
+        //mCommandSubject = CommandSubject.createWithSize(MAX_COMMAND_IN_ROW);
+        mCommandSubject = CommandSubjectSync.create();
     }
 
     public void sendCommand(ViewCommand<V> command) {
         mCommandSubject.onNext(command);
     }
 
-    public void unsubscribe() {
+    public void unsubscribe(V view) {
         if (mSubscription != null) {
-            mSubscription.unsubscribe();
-            mSubscription = null;
+            Subscription subscription = mSubscriptionMap.get(view);
+
+            if (subscription != null) {
+                mSubscription.remove(subscription);
+            }
+
+            if (!mSubscription.hasSubscriptions()) {
+                mSubscription.unsubscribe();
+                mSubscription = null;
+            }
         }
     }
 
@@ -38,16 +54,26 @@ public class ViewCommandHelper<V> {
         if (mSubscription == null) {
             mSubscription = new CompositeSubscription();
         }
-        mSubscription.add(mCommandSubject.subscribe(command -> {
+
+        Subscription subscription = mCommandSubject.doOnNext(command -> {
+            if (command instanceof ViewCommandSingle) {
+                mCommandSubject.remove(command);
+            }
+        }).subscribe(command -> {
                     command.emmit(view);
-                    if (command instanceof ViewCommandSingle) {
-                        mCommandSubject.remove(command);
-                    }
+
                 }
-        ));
+        );
+
+        mSubscriptionMap.put(view, subscription);
+        mSubscription.add(subscription);
     }
 
     public void cleanCommands() {
         mCommandSubject.clear();
+    }
+
+    public boolean hasSubscribers() {
+        return mSubscription != null && mSubscription.hasSubscriptions();
     }
 }

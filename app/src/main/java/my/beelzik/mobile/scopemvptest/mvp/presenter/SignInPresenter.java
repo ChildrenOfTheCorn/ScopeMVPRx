@@ -44,17 +44,17 @@ public class SignInPresenter extends BasePresenter<SignInContract.View> implemen
         final String token = "Basic " + Base64.encodeToString(credentials.getBytes(), Base64.NO_WRAP);
 
 
-        apiService.signIn(token).subscribe(user -> {
-                    sessionPreference.setSessionToken(token);
-                    send(view -> view.showProgress(false));
-                    send(view -> view.enableForm(true));
-                    send(SignInContract.View::signIn);
-                },
-                throwable -> {
-                    send(view -> view.showProgress(false));
-                    send(view -> view.enableForm(true));
-                    sendSingle(view -> view.showError(throwable.getMessage()));
-                });
+        apiService.signIn(token).doOnNext(user -> sessionPreference.setSessionToken(token))
+                .subscribe(user -> {
+                            send(view -> view.showProgress(false));
+                            send(view -> view.enableForm(true));
+                            send(SignInContract.View::signIn);
+                        },
+                        throwable -> {
+                            send(view -> view.showProgress(false));
+                            send(view -> view.enableForm(true));
+                            sendSingle(view -> view.showError(throwable.getMessage()));
+                        });
     }
 
     @Override

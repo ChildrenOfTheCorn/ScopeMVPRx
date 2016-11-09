@@ -10,8 +10,8 @@ public interface BaseContract {
 
         void attachView(T view);
 
-        void detachView();
+        void detachView(T view);
 
-        boolean isViewAttached();
+        boolean isViewsAttached();
     }
 }

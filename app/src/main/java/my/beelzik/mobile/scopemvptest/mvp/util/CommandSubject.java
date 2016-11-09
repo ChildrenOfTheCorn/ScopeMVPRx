@@ -1,5 +1,7 @@
 package my.beelzik.mobile.scopemvptest.mvp.util;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,14 +28,14 @@ public class CommandSubject<T> extends Subject<T, T> {
     /**
      * Creates a size-bounded replay subject.
      * <p>
-     * In this setting, the {@code ReplaySubject} holds at most {@code size} items in its internal buffer and
+     * In this setting, the {@code ReplaySubject} holds at most {@code size} items in its internal mBuffer and
      * discards the oldest item.
      * <p>
      * When observers subscribe to a terminated {@code ReplaySubject}, they are guaranteed to see at most
      * {@code size} {@code onNext} events followed by a termination event.
      * <p>
      * If an observer subscribes while the {@code ReplaySubject} is active, it will observe all items in the
-     * buffer at that point in time and each item observed afterwards, even if the buffer evicts items due to
+     * mBuffer at that point in time and each item observed afterwards, even if the mBuffer evicts items due to
      * the size constraint in the mean time. In other words, once an Observer subscribes, it will receive items
      * without gaps in the sequence.
      *
@@ -190,7 +192,7 @@ public class CommandSubject<T> extends Subject<T, T> {
 
     /**
      * Holds onto the array of Subscriber-wrapping ReplayProducers and
-     * the buffer that holds values to be replayed; it manages
+     * the mBuffer that holds values to be replayed; it manages
      * subscription and signal dispatching.
      *
      * @param <T> the value type
@@ -582,6 +584,7 @@ public class CommandSubject<T> extends Subject<T, T> {
 
         @Override
         public void clear() {
+            Log.d(TAG, "clear: ");
             ReplaySizeBoundBuffer.Node<T> n = new ReplaySizeBoundBuffer.Node<T>(null);
             this.tail = n;
             this.head = n;
@@ -589,27 +592,32 @@ public class CommandSubject<T> extends Subject<T, T> {
             this.size = 0;
         }
 
-        private static final String TAG = "ReplaySizeBoundBuffer";
+        private static final String TAG = "SignInActivity";
 
         @Override
         public void remove(T value) {
-
+            Log.d(TAG, "remove: ");
             if (value == null) {
                 return;
             }
 
             if (value.equals(head.value)) {
-                head = head.get();
+                head = head.get() == null ? new ReplaySizeBoundBuffer.Node<T>(null) : head.get();
             } else {
 
                 ReplaySizeBoundBuffer.Node<T> previous = head;
                 ReplaySizeBoundBuffer.Node<T> current = head.get();
+
 
                 while (current != null) {
                     if (value.equals(current.value)) {
                         ReplaySizeBoundBuffer.Node<T> next = current.get();
                         previous.set(next);
                         this.size--;
+
+                        if (value.equals(tail.value)) {
+                            tail = previous;
+                        }
                         return;
                     } else {
                         current = current.get();
@@ -656,26 +664,26 @@ public class CommandSubject<T> extends Subject<T, T> {
 
         /**
          * Indicates this Subscriber runs unbounded and the <b>source</b>-triggered
-         * buffer.drain() has emitted all available values.
+         * mBuffer.drain() has emitted all available values.
          * <p>
          * This field has to be read and written from the source emitter's thread only.
          */
         boolean caughtUp;
 
         /**
-         * Unbounded buffer.drain() uses this field to remember the absolute index of
+         * Unbounded mBuffer.drain() uses this field to remember the absolute index of
          * values replayed to this Subscriber.
          */
         int index;
 
         /**
-         * Unbounded buffer.drain() uses this index within its current node to indicate
+         * Unbounded mBuffer.drain() uses this index within its current node to indicate
          * how many items were replayed from that particular node so far.
          */
         int tailIndex;
 
         /**
-         * Stores the current replay node of the buffer to be used by buffer.drain().
+         * Stores the current replay node of the mBuffer to be used by mBuffer.drain().
          */
         Object node;
 

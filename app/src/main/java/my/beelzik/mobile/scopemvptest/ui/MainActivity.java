@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 
@@ -145,12 +144,10 @@ public class MainActivity extends BaseMvpActivity implements IHasComponent<MainC
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy: ");
+        if (isFinishing()) {
+            mComponentDelegate.removeComponent();
+        }
+
     }
 
-    @Override
-    public void finish() {
-        super.finish();
-        mComponentDelegate.removeComponent();
-    }
 }
